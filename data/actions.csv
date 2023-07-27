@@ -1,0 +1,19 @@
+poll_name,option,action
+poll_1,1,oc delete limitrange/guide-resource-limits -n ${PROJECT_NAME}
+poll_1,2,echo "do nothing"
+poll_1,3,echo "do nothing"
+poll_2,1,oc patch resourcequota/guide-resource-quota  -p '{"spec" : { "hard" : {  "count/deployments.apps" : "5" } } }' -n ${PROJECT_NAME}
+poll_2,2,echo "do nothing"
+poll_2,3,echo "do nothing"
+poll_3,1,echo "do nothing"
+poll_3,2,oc create -n ${PROJECT_NAME} secret docker-registry kitchensink-pull-secret --docker-server=https://${REGISTRY} --docker-username=${CONTAINER_REGISTRY_USERNAME} --docker-password=${CONTAINER_REGISTRY_PASSWORD}
+poll_3,3,echo "do nothing"
+poll_4,1,echo "do nothing"
+poll_4,2,${DATA_DIR}/poll_4_command.sh
+poll_4,3,echo "do nothing"
+poll_5,1,echo "do nothing"
+poll_5,2,echo "do nothing"
+poll_5,3,${DATA_DIR}/poll_5_command.sh
+poll_6,1,echo "do nothing"
+poll_6,2,${DATA_DIR}/poll_6_command.sh
+poll_6,3,echo "do nothing"

@@ -1,0 +1,7 @@
+poll_name,status,option_1,option_1_count,option_2,option_2_count,option_3,option_3_count
+poll_1,CLOSED,Borrar o actualizar el LimitRange que impide crear el build,0,Borrar el namespace y recrearlo,0,Redepsplegar con más recursos,0
+poll_2,CLOSED,Parchear la cuota para que se puedan crear más objetos Deployment,0,Eliminar la cuota,0,Rezar,0
+poll_3,CLOSED,Crear un ConfigMap para acceder al registro de imágenes,0,Crear un Secret con credenciales que permita utilizar imágenes del registro empresarial,0,Rezar,0
+poll_4,CLOSED,Preguntar a ChatGPT,0,Crear un ServiceMonitor que permita configurar Prometheus para capturar métricas de nuestro servicio,0,Desplegar un servicio que recupere la métricas que estamos exportando,0
+poll_5,CLOSED,Iniciar un proceso de modificación del condensador de fluzo,0,Borrar el ServiceMonitor y crear uno nuevo con la descripción de línea base de nuestra métrica,0,Crear una regla de Prometheus que defina una alerta en función de número de errores,0
+poll_6,CLOSED,Actualizar la regla de Prometheus para que redirija las notificaciones a Slack,0,Crear un objeto AlertmanagerConfig que configura las notificaciones hacia Slack,0,Disparando un haz de neutrones contra una fina lámina de oro,0
