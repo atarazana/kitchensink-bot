@@ -132,7 +132,7 @@ def get_action_by_poll_name_and_option(poll_name: str, option: int):
     c = conn.cursor()
     # This is open to SQL injection to some degree, should be
     c.execute(
-        """SELECT poll_name, option, action
+        """SELECT poll_name, option, command, txt, image_url
            FROM actions WHERE poll_name=:poll_name and option=:option""",
         {"poll_name": poll_name, "option": option},
     )

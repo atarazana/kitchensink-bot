@@ -45,7 +45,10 @@ def poll_command_callback(command, ack: Ack, respond: Respond, logger: Logger):
                     poll = open_poll(poll_name)
                     client.chat_postMessage(
                         channel=command["channel_name"],
-                        text=f"Poll {poll['poll_name']} opened for voting:\n- :one: {poll['option_1']}\n- :two: {poll['option_2']}\n- :three: {poll['option_3']}",
+                        text=f"Poll {poll['poll_name']} opened for voting:\n"
+                        f"- :one: {poll['option_1']}\n"
+                        f"- :two: {poll['option_2']}\n"
+                        f"- :three: {poll['option_3']}",
                     )
                 case "close":
                     poll_name = extract_args_close(subject, logger)
@@ -60,14 +63,23 @@ def poll_command_callback(command, ack: Ack, respond: Respond, logger: Logger):
                             text=f"Poll {poll_name} closed, the winner is option {winner_option}",
                         )
                         action = get_action_by_poll_name_and_option(poll_name, winner_option)
-                        client.chat_postMessage(
-                            channel=command["channel_name"],
-                            text=f"Running {action['action']}",
-                        )
-                        cmd = action["action"]
-                        logger.debug(f"Executing {cmd}")
-                        (returncode, stdout, stderr) = execute_shell_command(cmd)
-                        respond(blocks=blocks_for_cmd_result(returncode, stdout, stderr))
+                        respond(f"Executing {action}")
+                        # (action_is_slack, message) = is_action_slack(action['command'], logger)
+                        if action["txt"] or action["image_url"]:
+                            print("AAAAAAAA")
+                            post_action_message(action, client, command["channel_name"], logger)
+
+                        if action["command"] or action["image_url"]:
+                            print("BBBBBBBB")
+                            client.chat_postMessage(
+                                channel=command["channel_name"],
+                                text=f"Running {action['command']}",
+                            )
+                            (returncode, stdout, stderr) = execute_shell_command(action["command"])
+                            respond(blocks=blocks_for_cmd_result(returncode, stdout, stderr))
+                        else:
+                            logger.error("There should be a command to execute")
+                        print("CCCCCCC")
                     else:
                         respond(f"No such a poll named {poll_name}")
                 case "get":
@@ -76,7 +88,10 @@ def poll_command_callback(command, ack: Ack, respond: Respond, logger: Logger):
                     poll = get_poll(poll_name)
                     if poll is not None:
                         respond(
-                            f"Poll {poll['poll_name']} is {poll['status']}:\n- :one: {poll['option_1']}\n- :two: {poll['option_2']}\n- :three: {poll['option_3']}"
+                            f"Poll {poll['poll_name']} opened for voting:\n"
+                            f"- :one: {poll['option_1']}\n"
+                            f"- :two: {poll['option_2']}\n"
+                            f"- :three: {poll['option_3']}"
                         )
                     else:
                         respond(f"No such a poll named {poll_name}")
@@ -146,6 +161,42 @@ def extract_args_get(subject: str, logger: Logger):
         raise Exception(f"Arguments malformed for '/poll get' try this instead: {POLL_GET_EXAMPLE_CALL}")
 
     return poll_name
+
+
+def is_action_slack(action: str, logger: Logger):
+    logger.debug(f"is_action_slack (action={action})")
+    slack_pattern = r"slack.*(\{.*\})"
+    slack_match = re.search(slack_pattern, action)
+
+    logger.debug(f"slack_match {slack_match}")
+
+    # If action is slack let's extract the message
+    if slack_match:
+        message = slack_match.group(1).lstrip().rstrip()
+        logger.debug(f"message => {message}")
+        return (True, message)
+
+    return (False, None)
+
+
+def post_action_message(action, client: WebClient, channel: str, logger: Logger):
+    logger.debug(f"post_action_message(action={action})")
+
+    message = {
+        "channel": channel,
+        "blocks": [
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": action["txt"],
+                },
+            },
+            {"type": "image", "image_url": action["image_url"], "alt_text": "Your Image Alt Text"},
+        ],
+    }
+
+    client.chat_postMessage(**message)
 
 
 def execute_shell_command(command):

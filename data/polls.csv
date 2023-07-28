@@ -1,4 +1,6 @@
 poll_name,status,option_1,option_1_count,option_2,option_2_count,option_3,option_3_count
+test_1,CLOSED,Frigo Dedo,0,Drácula,0,Colajet,0
+test_2,CLOSED,Alien el octavo pasajero,0,Interestelar,0,Regreso al futuro,0
 poll_1,CLOSED,Borrar o actualizar el LimitRange que impide crear el build,0,Borrar el namespace y recrearlo,0,Redepsplegar con más recursos,0
 poll_2,CLOSED,Parchear la cuota para que se puedan crear más objetos Deployment,0,Eliminar la cuota,0,Rezar,0
 poll_3,CLOSED,Crear un ConfigMap para acceder al registro de imágenes,0,Crear un Secret con credenciales que permita utilizar imágenes del registro empresarial,0,Rezar,0
