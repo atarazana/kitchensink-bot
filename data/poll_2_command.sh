@@ -4,7 +4,7 @@ cat <<EOF | oc apply -n openshift-gitops -f -
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: kitchensink-helm-app-${DEV_USERNAME}
+  name: kitchensink-basic-app-${DEV_USERNAME}
   namespace: openshift-gitops
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -14,21 +14,15 @@ metadata:
 spec:
   destination:
     name: in-cluster
-    namespace: helm-${DEV_USERNAME}
+    namespace: argo-${DEV_USERNAME}
   ignoreDifferences:
-    - group: apps
+    - group: apps.openshift.io
       jqPathExpressions:
         - '.spec.template.spec.containers[].image'
-      kind: Deployment
+      kind: DeploymentConfig
   project: default
   source:
-    helm:
-      parameters:
-        - name: debug
-          value: 'true'
-        - name: baseNamespace
-          value: 'helm-${DEV_USERNAME}'
-    path: advanced/helm_base
+    path: basic/base
     repoURL: "${GIT_SERVER}/${DEV_USERNAME}/kitchensink-conf"
     targetRevision: main
   syncPolicy:

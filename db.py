@@ -46,7 +46,7 @@ def init_db():
 def create_poll(poll_name: str, option_1: str, option_2: str, option_3: str):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    # This is open to SQL injection to some degree, should be
+
     c.execute(
         """INSERT
            INTO polls
@@ -71,7 +71,7 @@ def create_poll(poll_name: str, option_1: str, option_2: str, option_3: str):
 def close_poll(poll_name: str):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    # This is open to SQL injection to some degree, should be
+
     c.execute("UPDATE polls SET status=:status WHERE poll_name=:poll_name", {"status": "CLOSED", "poll_name": poll_name})
     conn.commit()
     conn.close()
@@ -82,20 +82,11 @@ def open_poll(poll_name: str):
     conn.row_factory = dict_factory
     c = conn.cursor()
 
-    # This is open to SQL injection to some degree, should be
     c.execute("UPDATE polls SET status=:status WHERE poll_name=:poll_name", {"status": "OPEN", "poll_name": poll_name})
     conn.commit()
-
-    c.execute(
-        """SELECT poll_name, status, option_1, option_1_count, option_2, option_2_count, option_3, option_3_count
-           FROM polls WHERE poll_name=:poll_name""",
-        {"poll_name": poll_name},
-    )
-
-    poll = c.fetchone()
-    print(f"poll = {poll}")
-
     conn.close()
+
+    poll = get_poll(poll_name)
 
     return poll
 
@@ -113,7 +104,8 @@ def get_poll(poll_name: str):
     c = conn.cursor()
     # This is open to SQL injection to some degree, should be
     c.execute(
-        """SELECT poll_name, status, option_1, option_1_count, option_2, option_2_count, option_3, option_3_count
+        """SELECT poll_name, title, comments, status,
+           option_1, option_1_count, option_2, option_2_count, option_3, option_3_count
            FROM polls WHERE poll_name=:poll_name""",
         {"poll_name": poll_name},
     )

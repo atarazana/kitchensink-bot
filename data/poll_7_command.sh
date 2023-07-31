@@ -4,7 +4,7 @@ cat <<EOF | oc apply -n openshift-gitops -f -
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: kitchensink-kustomize-${DEV_USERNAME}
+  name: kitchensink-kustomized-helm-${DEV_USERNAME}
   namespace: openshift-gitops
   labels:
     argocd-root-app: "true"
@@ -14,14 +14,14 @@ spec:
   - list:
       elements:
       - env: dev
-        ns: kustomize-dev-${DEV_USERNAME}
-        desc: "Kustomize Dev"
+        ns: helm-kustomize-dev-${DEV_USERNAME}
+        desc: "Helm + Kustomize (Dev)"
       - env: test
-        ns: kustomize-test-${DEV_USERNAME}
-        desc: "Kustomize Test"
+        ns: helm-kustomize-test-${DEV_USERNAME}
+        desc: "Helm + Kustomize (Test)"
   template:
     metadata:
-      name: kitchensink-kustomize-app-{{ env }}-${DEV_USERNAME}
+      name: kitchensink-kustomized-helm-app-{{ env }}-${DEV_USERNAME}
       namespace: openshift-gitops
       labels:
         kitchensink-root-app: "true"
@@ -32,11 +32,6 @@ spec:
       destination:
         namespace: '{{ ns }}'
         name: in-cluster
-      ignoreDifferences:
-      - group: apps.openshift.io
-        kind: DeploymentConfig
-        jqPathExpressions:
-          - .spec.template.spec.containers[].image
       project: default
       syncPolicy:
         automated:
@@ -44,7 +39,14 @@ spec:
         syncOptions:
           - CreateNamespace=true
       source:
-        path: kustomize/{{ env }}
+        path: advanced/overlays/{{ env }}
         repoURL: "${GIT_SERVER}/${DEV_USERNAME}/kitchensink-conf"
         targetRevision: main
+        plugin:
+          env:
+            - name: DEBUG
+              value: 'false'
+            - name: BASE_NAMESPACE
+              value: 'cicd-tekton-${DEV_USERNAME}'
+          name: kustomized-helm
 EOF

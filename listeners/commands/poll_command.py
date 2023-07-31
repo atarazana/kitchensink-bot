@@ -21,7 +21,7 @@ client = WebClient(token=os.environ.get("SLACK_BOT_TOKEN"))
 def poll_command_callback(command, ack: Ack, respond: Respond, logger: Logger):
     try:
         ack()
-        logger.info(f" command => {command}")
+        logger.debug(f" command => {command}")
 
         verb_pattern = r"(open|close|reopen|get)\s+(.*)"
         verb_match = re.search(verb_pattern, command["text"])
@@ -41,15 +41,18 @@ def poll_command_callback(command, ack: Ack, respond: Respond, logger: Logger):
                     )
                 case "open":
                     (poll_name) = extract_args_open(subject, logger)
-                    respond(f"Opening poll {poll_name}")
+                    respond(f"Reading poll {poll_name}")
                     poll = open_poll(poll_name)
-                    client.chat_postMessage(
-                        channel=command["channel_name"],
-                        text=f"Poll {poll['poll_name']} opened for voting:\n"
-                        f"- :one: {poll['option_1']}\n"
-                        f"- :two: {poll['option_2']}\n"
-                        f"- :three: {poll['option_3']}",
-                    )
+                    respond(f"Poll {poll}")
+                    # respond(f"Poll *{poll_name}* opened with title: {poll['title']}")
+                    # client.chat_postMessage(
+                    #     channel=command["channel_name"],
+                    #     text=f"Poll {poll['poll_name']} opened for voting:\n"
+                    #     f"- :one: {poll['option_1']}\n"
+                    #     f"- :two: {poll['option_2']}\n"
+                    #     f"- :three: {poll['option_3']}",
+                    # )
+                    post_poll_opening_message(poll, client, command["channel_name"], logger)
                 case "close":
                     poll_name = extract_args_close(subject, logger)
                     respond(f"Closing poll {poll_name}")
@@ -60,26 +63,23 @@ def poll_command_callback(command, ack: Ack, respond: Respond, logger: Logger):
                         winner_option = counts.index(max(counts)) + 1
                         client.chat_postMessage(
                             channel=command["channel_name"],
-                            text=f"Poll {poll_name} closed, the winner is option {winner_option}",
+                            text=f"Poll *{poll_name}* closed, the winner is option *{winner_option}*",
                         )
                         action = get_action_by_poll_name_and_option(poll_name, winner_option)
                         respond(f"Executing {action}")
                         # (action_is_slack, message) = is_action_slack(action['command'], logger)
                         if action["txt"] or action["image_url"]:
-                            print("AAAAAAAA")
                             post_action_message(action, client, command["channel_name"], logger)
 
-                        if action["command"] or action["image_url"]:
-                            print("BBBBBBBB")
+                        if action["command"]:
                             client.chat_postMessage(
                                 channel=command["channel_name"],
-                                text=f"Running {action['command']}",
+                                text=f"About to run: {action['command']}",
                             )
                             (returncode, stdout, stderr) = execute_shell_command(action["command"])
                             respond(blocks=blocks_for_cmd_result(returncode, stdout, stderr))
                         else:
-                            logger.error("There should be a command to execute")
-                        print("CCCCCCC")
+                            logger.info("There should be a command to execute")
                     else:
                         respond(f"No such a poll named {poll_name}")
                 case "get":
@@ -177,6 +177,31 @@ def is_action_slack(action: str, logger: Logger):
         return (True, message)
 
     return (False, None)
+
+
+def post_poll_opening_message(poll, client: WebClient, channel: str, logger: Logger):
+    logger.debug(f"post_poll_opening_message(poll={poll})")
+
+    message = {
+        "channel": channel,
+        "blocks": [
+            {"type": "section", "text": {"type": "mrkdwn", "text": f"Poll *{poll['poll_name']}* opened for voting!!!\n"}},
+            {"type": "divider"},
+            {"type": "header", "text": {"type": "plain_text", "text": f":rocket:  {poll['title']}  :rocket:"}},
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": f"Responde *reaccionando* con uno de los iconos siguientes:\n"
+                    f"• :one: {poll['option_1']}\n"
+                    f"• :two: {poll['option_2']}\n"
+                    f"• :three: {poll['option_3']}",
+                },
+            },
+        ],
+    }
+
+    client.chat_postMessage(**message)
 
 
 def post_action_message(action, client: WebClient, channel: str, logger: Logger):

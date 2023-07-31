@@ -4,7 +4,7 @@ cat <<EOF | oc apply -n openshift-gitops -f -
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: kitchensink-kustomize-${DEV_USERNAME}
+  name: kitchensink-basic-${DEV_USERNAME}
   namespace: openshift-gitops
   labels:
     argocd-root-app: "true"
@@ -13,15 +13,13 @@ spec:
   generators:
   - list:
       elements:
-      - env: dev
-        ns: kustomize-dev-${DEV_USERNAME}
-        desc: "Kustomize Dev"
-      - env: test
-        ns: kustomize-test-${DEV_USERNAME}
-        desc: "Kustomize Test"
+      - env: appset-a-${DEV_USERNAME}
+        desc: "ApplicationSet A"
+      - env: appset-b-${DEV_USERNAME}
+        desc: "ApplicationSet B"
   template:
     metadata:
-      name: kitchensink-kustomize-app-{{ env }}-${DEV_USERNAME}
+      name: kitchensink-basic-app-{{ env }}
       namespace: openshift-gitops
       labels:
         kitchensink-root-app: "true"
@@ -30,7 +28,7 @@ spec:
       - resources-finalizer.argocd.argoproj.io
     spec:
       destination:
-        namespace: '{{ ns }}'
+        namespace: '{{ env }}'
         name: in-cluster
       ignoreDifferences:
       - group: apps.openshift.io
@@ -44,7 +42,7 @@ spec:
         syncOptions:
           - CreateNamespace=true
       source:
-        path: kustomize/{{ env }}
+        path: basic/base
         repoURL: "${GIT_SERVER}/${DEV_USERNAME}/kitchensink-conf"
         targetRevision: main
 EOF

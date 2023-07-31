@@ -10,7 +10,15 @@ from db import init_db
 
 # Initialization
 app = App(token=os.environ.get("SLACK_BOT_TOKEN"))
-logging.basicConfig(level=logging.DEBUG)
+
+LOGGING_LEVEL = os.environ.get("LOGGING_LEVEL", logging.INFO)
+BOLT_SDK_LOGGING_LEVEL = os.environ.get("BOLT_SDK_LOGGING_LEVEL", logging.INFO)
+
+logging.basicConfig(level=LOGGING_LEVEL)
+
+# Create a custom logger for slack_sdk.webhook.client
+webhook_logger = logging.getLogger("slack_sdk.webhook.client")
+webhook_logger.setLevel(BOLT_SDK_LOGGING_LEVEL)  # Set the desired logging level here
 
 # Register Listeners
 register_listeners(app)
