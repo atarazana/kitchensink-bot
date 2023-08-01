@@ -1,5 +1,5 @@
 slack-bolt
 pytest
-flake8==6.0.0
+flake8==6.1.0
 black==22.10.0
 pandas
