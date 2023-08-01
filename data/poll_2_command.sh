@@ -1,5 +1,7 @@
 printf "=================\nEXECUTING STEP %s\n=================\n" "01"
 
+GIT_SERVER="https://$(oc get route repository -n gitea-system -o jsonpath='{.spec.host}')"
+
 cat <<EOF | oc apply -n openshift-gitops -f -
 apiVersion: argoproj.io/v1alpha1
 kind: Application

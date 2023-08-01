@@ -1,5 +1,13 @@
 printf "=================\nEXECUTING STEP %s\n=================\n" "01"
 
+GIT_SERVER="https://$(oc get route repository -n gitea-system -o jsonpath='{.spec.host}')"
+
+oc new-project s2i-${DEV_USERNAME}
+
+oc adm policy add-role-to-user edit ${DEV_USERNAME} -n s2i-${DEV_USERNAME}
+oc adm policy add-role-to-user monitoring-edit ${DEV_USERNAME} -n s2i-${DEV_USERNAME}
+oc adm policy add-role-to-user alert-routing-edit ${DEV_USERNAME} -n s2i-${DEV_USERNAME}
+
 oc new-app --name=kitchensink-db \
  -e POSTGRESQL_USER=luke \
  -e POSTGRESQL_PASSWORD=secret \

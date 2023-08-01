@@ -82,7 +82,13 @@ def open_poll(poll_name: str):
     conn.row_factory = dict_factory
     c = conn.cursor()
 
-    c.execute("UPDATE polls SET status=:status WHERE poll_name=:poll_name", {"status": "OPEN", "poll_name": poll_name})
+    c.execute(
+        """UPDATE polls
+            SET status=:status,
+                option_1_count=:option_1_count, option_2_count=:option_2_count, option_3_count=:option_3_count
+            WHERE poll_name=:poll_name""",
+        {"status": "OPEN", "poll_name": poll_name, "option_1_count": 0, "option_2_count": 0, "option_3_count": 0},
+    )
     conn.commit()
     conn.close()
 
