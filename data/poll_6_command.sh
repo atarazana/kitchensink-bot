@@ -91,9 +91,11 @@ oc annotate -n cicd-tekton-${DEV_USERNAME} secret git-pat-secret \
 
 printf "=================\nEXECUTING STEP %s\n=================\n" "04"
 
+sleep 10
+
 KITCHENSINK_CI_EL_LISTENER_HOST=$(oc get route/el-kitchensink-ci-pl-push-gitea-listener -n cicd-tekton-${DEV_USERNAME} -o jsonpath='{.status.ingress[0].host}')
 
-curl -k -X 'POST' "${GIT_SERVER}/api/v1/repos/${DEV_USERNAME}/kitchensink/hooks" \
+curl -s -k -X 'POST' "${GIT_SERVER}/api/v1/repos/${DEV_USERNAME}/kitchensink/hooks" \
   -H "accept: application/json" \
   -H "Authorization: token ${GIT_PAT}" \
   -H "Content-Type: application/json" \
@@ -112,7 +114,7 @@ curl -k -X 'POST' "${GIT_SERVER}/api/v1/repos/${DEV_USERNAME}/kitchensink/hooks"
 
 KITCHENSINK_CD_EL_LISTENER_HOST=$(oc get route/el-kitchensink-cd-pl-pr-gitea-listener -n cicd-tekton-${DEV_USERNAME} -o jsonpath='{.status.ingress[0].host}')
 
-curl -k -X 'POST' "${GIT_SERVER}/api/v1/repos/${DEV_USERNAME}/kitchensink-conf/hooks" \
+curl -s -k -X 'POST' "${GIT_SERVER}/api/v1/repos/${DEV_USERNAME}/kitchensink-conf/hooks" \
   -H "accept: application/json" \
   -H "Authorization: token ${GIT_PAT}" \
   -H "Content-Type: application/json" \
