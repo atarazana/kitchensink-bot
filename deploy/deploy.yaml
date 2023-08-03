@@ -147,9 +147,16 @@ spec:
           secret:
             secretName: kitchensink-bot-data
       containers:
-      - image: quay.io/atarazana/kitchensink-bot:1.0.0
+      - name: kitchensink-bot
+        image: quay.io/atarazana/kitchensink-bot:1.0.0
         imagePullPolicy: Always
-        name: kitchensink-bot
+        resources:
+          limits:
+            cpu: '500'
+            memory: 512Mi
+          requests:
+            cpu: 250m
+            memory: 256Mi
         volumeMounts:
         - name: kitchensink-bot-db-pvc
           mountPath: /db
