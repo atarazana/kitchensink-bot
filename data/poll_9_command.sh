@@ -37,18 +37,16 @@ fi
 
 yq e -i '.kitchensinkBuilderImage = "jboss-eap74-openjdk8-openshift:7.4.0"' ${BASE_DIR}/kitchensink-conf/cicd/values.yaml
 
-
 git -C ${BASE_DIR}/kitchensink-conf commit -a -m "from poll_9.sh"
 git -C ${BASE_DIR}/kitchensink-conf push origin main
 
-ARGOCD_APP_NAME=cicd-tekton-${DEV_USERNAME}
-# WAIT_FOR_HEALTH_FLAG=--wait
-argocd --grpc-web app get --refresh ${ARGOCD_APP_NAME} > /dev/null 
-# argocd --grpc-web app wait ${ARGOCD_APP_NAME} --sync ${WAIT_FOR_HEALTH_FLAG}
+ARGOCD_APP_NAME=openshift-gitops/kitchensink-cicd-${DEV_USERNAME}
+# WAIT_FOR_HEALTH_FLAG="--health"
+argocd --grpc-web app get --refresh ${ARGOCD_APP_NAME} > /dev/null && \
+argocd --grpc-web app wait ${ARGOCD_APP_NAME} --sync ${WAIT_FOR_HEALTH_FLAG}
 
 git -C ${BASE_DIR}/kitchensink commit -a -m "from poll_9.sh"
 git -C ${BASE_DIR}/kitchensink push origin main
-
 
 rm -rf  ${BASE_DIR}
 

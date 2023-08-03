@@ -236,10 +236,17 @@ def execute_shell_command(command):
         print(f"Error output: {e.output}")
 
 
+def shorten_string_to_slack_max(s: str):
+    max_length = 2900
+    if len(s) > max_length:
+        s = s[:max_length]
+    return s
+
+
 def blocks_for_cmd_result(returncode, stdout, stderr):
     blocks = [SectionBlock(text=f"*Result* after running latest command with *code({returncode})*:")]
     if stdout:
-        blocks.append(SectionBlock(text=f"*Output:* {stdout}"))
+        blocks.append(SectionBlock(text=f"*Output:* {shorten_string_to_slack_max(stdout)}"))
     if stderr:
-        blocks.append(SectionBlock(text=f"*Error:* {stderr}"))
+        blocks.append(SectionBlock(text=f"*Error:* {shorten_string_to_slack_max(stderr)}"))
     return blocks

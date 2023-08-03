@@ -1,6 +1,7 @@
 #!/bin/sh
 
-ENV_FILE=../.env.deploy
+DEPLOYMENT_NS=kitchensink-bot
+ENV_FILE="../.env.deploy"
 
 if ! test -f "${ENV_FILE}"; then
     echo "${ENV_FILE} does not exist."
@@ -9,9 +10,12 @@ fi
 
 . ${ENV_FILE}
 
-oc new-project kitchensink-bot
+oc new-project ${DEPLOYMENT_NS}
 
-oc delete secret kitchensink-bot-env -n kitchensink-bot
-oc create secret generic kitchensink-bot-env --from-env-file=${ENV_FILE} -n kitchensink-bot
+oc delete secret kitchensink-bot-data -n ${DEPLOYMENT_NS}
+oc create secret generic kitchensink-bot-data --from-file=../data -n ${DEPLOYMENT_NS}
 
-oc apply -n kitchensink-bot -f deploy.yaml
+oc delete secret kitchensink-bot-env -n ${DEPLOYMENT_NS}
+oc create secret generic kitchensink-bot-env --from-env-file=${ENV_FILE} -n ${DEPLOYMENT_NS}
+
+oc apply -n ${DEPLOYMENT_NS} -f deploy.yaml
