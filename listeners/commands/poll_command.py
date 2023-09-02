@@ -184,8 +184,9 @@ def post_poll_opening_message(poll, client: WebClient, channel: str, logger: Log
 
     message = {
         "channel": channel,
+        "text": f"Poll {poll['poll_name']} opened for voting",
         "blocks": [
-            {"type": "section", "text": {"type": "mrkdwn", "text": f"Poll *{poll['poll_name']}* opened for voting!!!\n"}},
+            {"type": "section", "text": {"type": "mrkdwn", "text": f"Poll *{poll['poll_name']}* opened for voting!!!"}},
             {"type": "divider"},
             {"type": "header", "text": {"type": "plain_text", "text": f":rocket:  {poll['title']}  :rocket:"}},
             {
