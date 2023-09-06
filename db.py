@@ -103,6 +103,25 @@ def dict_factory(cursor, row):
         d[col[0]] = row[idx]
     return d
 
+def is_poll_open(poll_name: str):
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = dict_factory
+    c = conn.cursor()
+    # This is open to SQL injection to some degree, should be
+    c.execute(
+        """SELECT poll_name, status
+           FROM polls WHERE poll_name=:poll_name""",
+        {"poll_name": poll_name},
+    )
+
+    poll = c.fetchone()
+    print(f"poll = {poll}")
+
+    conn.close()
+
+    if poll is not None:
+        return poll['status'] == 'OPEN'
+    return False
 
 def get_poll(poll_name: str):
     conn = sqlite3.connect(DB_PATH)

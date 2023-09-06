@@ -228,7 +228,7 @@ def post_action_message(action, client: WebClient, channel: str, logger: Logger)
 def execute_shell_command(command):
     try:
         # Execute the shell command and capture the output and errors
-        result = subprocess.run(command, shell=True, capture_output=True, text=True, timeout=20)
+        result = subprocess.run(command, shell=True, capture_output=True, text=True, timeout=45)
 
         return (result.returncode, result.stdout, result.stderr)
     except subprocess.CalledProcessError as e:
