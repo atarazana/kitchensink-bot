@@ -142,6 +142,45 @@ def get_poll(poll_name: str):
 
     return poll
 
+def get_all_polls():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = dict_factory
+    c = conn.cursor()
+    # This is open to SQL injection to some degree, should be
+    c.execute(
+        """SELECT poll_name, title, comments, status,
+           option_1, option_1_count, option_2, option_2_count, option_3, option_3_count
+           FROM polls"""
+    )
+
+    polls = c.fetchall()
+    print(f"polls = {polls}")
+
+    conn.close()
+
+    return polls
+
+def get_polls_by_status(status: str):
+    if status is None:
+        return None
+    
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = dict_factory
+    c = conn.cursor()
+    # This is open to SQL injection to some degree, should be
+    c.execute(
+        """SELECT poll_name, title, comments, status,
+           option_1, option_1_count, option_2, option_2_count, option_3, option_3_count
+           FROM polls WHERE status=:status""",
+        {"status": status.upper()},
+    )
+
+    polls = c.fetchall()
+    print(f"polls = {polls}")
+
+    conn.close()
+
+    return polls
 
 def get_action_by_poll_name_and_option(poll_name: str, option: int):
     conn = sqlite3.connect(DB_PATH)
