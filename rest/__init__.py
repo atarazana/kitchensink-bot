@@ -4,4 +4,4 @@ from flask import Flask
 rest = Flask(__name__)
 
 # Import your routes
-from rest import rest_routes
+from rest import rest_routes  # noqa

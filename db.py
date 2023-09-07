@@ -103,6 +103,7 @@ def dict_factory(cursor, row):
         d[col[0]] = row[idx]
     return d
 
+
 def is_poll_open(poll_name: str):
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = dict_factory
@@ -120,8 +121,9 @@ def is_poll_open(poll_name: str):
     conn.close()
 
     if poll is not None:
-        return poll['status'] == 'OPEN'
+        return poll["status"] == "OPEN"
     return False
+
 
 def get_poll(poll_name: str):
     conn = sqlite3.connect(DB_PATH)
@@ -142,6 +144,7 @@ def get_poll(poll_name: str):
 
     return poll
 
+
 def get_all_polls():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = dict_factory
@@ -160,10 +163,11 @@ def get_all_polls():
 
     return polls
 
+
 def get_polls_by_status(status: str):
     if status is None:
         return None
-    
+
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = dict_factory
     c = conn.cursor()
@@ -181,6 +185,7 @@ def get_polls_by_status(status: str):
     conn.close()
 
     return polls
+
 
 def get_action_by_poll_name_and_option(poll_name: str, option: int):
     conn = sqlite3.connect(DB_PATH)

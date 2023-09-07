@@ -13,10 +13,12 @@ from db import init_db
 
 from rest import rest
 
+
 def sigterm_handler(signum, frame):
     print("Received SIGTERM. Shutting down gracefully...")
     # You can perform cleanup or additional shutdown tasks here if needed.
     os._exit(0)  # Exit the application
+
 
 signal.signal(signal.SIGTERM, sigterm_handler)
 
@@ -39,7 +41,7 @@ register_listeners(app)
 if __name__ == "__main__":
     init_db()
 
-     # Run the Flask app from the subfolder on a separate thread
+    # Run the Flask app from the subfolder on a separate thread
     flask_thread = Thread(target=lambda: rest.run(debug=False, host="0.0.0.0", port=5000))
     flask_thread.start()
 
@@ -53,4 +55,3 @@ if __name__ == "__main__":
         # Handle Ctrl+C gracefully (SIGINT)
         print("Received KeyboardInterrupt (Ctrl+C). Shutting down...")
         os._exit(0)  # Exit the application
-        
