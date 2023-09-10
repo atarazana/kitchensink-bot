@@ -1,21 +1,10 @@
 // src/components/ItemList.js
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import Form from 'react-bootstrap/Form';
+import FloatingLabel from 'react-bootstrap/FloatingLabel';
 
-function ItemList({ onSelectItem }) {
-  const [items, setItems] = useState([]);
+function ItemList({ items, onSelectItem }) {
   const [selectedItem, setSelectedItem] = useState('');
-
-  useEffect(() => {
-    // Fetch the list of items from your API
-    fetch('/poll/open')
-      .then((response) => response.json())
-      .then((data) => {
-        setItems(data);
-      })
-      .catch((error) => {
-        console.error('Error fetching items:', error);
-      });
-  }, []);
 
   const handleItemChange = (event) => {
     const selectedItemValue = event.target.value;
@@ -24,19 +13,32 @@ function ItemList({ onSelectItem }) {
   };
 
   return (
-    <div>
-      <label>
-        Select an item:
-        <select value={selectedItem} onChange={handleItemChange}>
-          <option value="">-- Select an item --</option>
-          {items.map((item) => (
-            <option key={item.poll_name} value={item.poll_name}>
-              {item.poll_name}
-            </option>
-          ))}
-        </select>
-      </label>
-    </div>
+    <FloatingLabel
+      controlId="floatingSelectGrid"
+      label="Select one poll to vote"
+    >
+    <Form.Select aria-label="Default select example" value={selectedItem} onChange={handleItemChange} key="options" name="options">
+      <option key="null" value="null">Open this select menu</option>
+      {items.map((item) => (
+      <option key={item.poll_name} value={item.poll_name}>
+        {item.poll_name}
+      </option>
+      ))}
+    </Form.Select>
+    </FloatingLabel>
+    // <div>
+    //   <label>
+    //     Select an item:
+    //     <select value={selectedItem} onChange={handleItemChange}>
+    //       <option value="">-- Select an item --</option>
+    //       {items.map((item) => (
+    //         <option key={item.poll_name} value={item.poll_name}>
+    //           {item.poll_name}
+    //         </option>
+    //       ))}
+    //     </select>
+    //   </label>
+    // </div>
   );
 }
 
