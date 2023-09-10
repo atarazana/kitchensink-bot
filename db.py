@@ -25,6 +25,11 @@ def init_db():
                  (poll_name text PRIMARY KEY, option number, action text)"""
     )
 
+    c.execute(
+        """CREATE TABLE IF NOT EXISTS votes
+                 (poll_name text, uuid text, option text, PRIMARY KEY (poll_name, uuid))"""
+    )
+
     # Load polls into a Pandas DataFrame
     polls = pd.read_csv(f'{os.environ.get("DATA_DIR")}/polls.csv')
     # Write the data to a sqlite table
@@ -89,6 +94,11 @@ def open_poll(poll_name: str):
             WHERE poll_name=:poll_name""",
         {"status": "OPEN", "poll_name": poll_name, "option_1_count": 0, "option_2_count": 0, "option_3_count": 0},
     )
+    c.execute(
+        """DELETE FROM votes
+           WHERE poll_name=:poll_name""",
+        {"poll_name": poll_name},
+    )
     conn.commit()
     conn.close()
 
@@ -145,6 +155,25 @@ def get_poll(poll_name: str):
     return poll
 
 
+def get_votes(poll_name: str):
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = dict_factory
+    c = conn.cursor()
+    # This is open to SQL injection to some degree, should be
+    c.execute(
+        """SELECT poll_name, uuid, option
+           FROM votes WHERE poll_name=:poll_name""",
+        {"poll_name": poll_name},
+    )
+
+    votes = c.fetchall()
+    # print(f"votes = {votes}")
+
+    conn.close()
+
+    return votes
+
+
 def get_all_polls():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = dict_factory
@@ -157,7 +186,7 @@ def get_all_polls():
     )
 
     polls = c.fetchall()
-    print(f"polls = {polls}")
+    # print(f"polls = {polls}")
 
     conn.close()
 
@@ -180,7 +209,7 @@ def get_polls_by_status(status: str):
     )
 
     polls = c.fetchall()
-    print(f"polls = {polls}")
+    # print(f"polls = {polls}")
 
     conn.close()
 
@@ -211,6 +240,19 @@ def add_vote_to_poll(poll_name: str, option: str):
     c = conn.cursor()
     # This is open to SQL injection to some degree, should be
     c.execute(f"UPDATE polls SET {option}_count={option}_count+1 WHERE poll_name=:poll_name", {"poll_name": poll_name})
+    conn.commit()
+    conn.close()
+
+
+def add_vote_to_poll_unique(poll_name: str, uuid: str, option: str):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    # This is open to SQL injection to some degree, should be
+    c.execute(f"UPDATE polls SET {option}_count={option}_count+1 WHERE poll_name=:poll_name", {"poll_name": poll_name})
+    c.execute(
+        f"INSERT OR REPLACE INTO votes (poll_name,uuid,option) VALUES (:poll_name,:uuid,:option)",
+        {"poll_name": poll_name, "uuid": uuid, "option": option},
+    )
     conn.commit()
     conn.close()
 

@@ -1,6 +1,7 @@
 import os
 import re
 import subprocess
+from collections import Counter
 
 from slack_bolt import Ack, Respond
 from logging import Logger
@@ -8,7 +9,7 @@ from logging import Logger
 from slack_sdk import WebClient
 from slack_sdk.models.blocks import SectionBlock
 
-from db import get_action_by_poll_name_and_option, get_poll, close_poll, open_poll, create_poll
+from db import get_action_by_poll_name_and_option, get_poll, close_poll, open_poll, create_poll, get_votes
 
 POLL_OPEN_EXAMPLE_CALL = "/poll open my_poll [Delete Limit,Delete Quota,Delete all]"
 POLL_CLOSE_EXAMPLE_CALL = "/poll close my_poll"
@@ -59,8 +60,14 @@ def poll_command_callback(command, ack: Ack, respond: Respond, logger: Logger):
                     poll = get_poll(poll_name)
                     if poll is not None:
                         close_poll(poll_name)
-                        counts = poll["option_1_count"], poll["option_2_count"], poll["option_3_count"]
-                        winner_option = counts.index(max(counts)) + 1
+
+                        votes = get_votes(poll_name)
+                        count_by_option = Counter(item["option"] for item in votes)
+                        max_option, max_count = count_by_option.most_common(1)[0]
+                        print(f"The most voted option is {max_option} with count={max_count}")
+
+                        winner_option = max_option
+
                         client.chat_postMessage(
                             channel=command["channel_name"],
                             text=f"Poll *{poll_name}* closed, the winner is option *{winner_option}*",
@@ -210,6 +217,7 @@ def post_action_message(action, client: WebClient, channel: str, logger: Logger)
 
     message = {
         "channel": channel,
+        "text": "Action executed",
         "blocks": [
             {
                 "type": "section",

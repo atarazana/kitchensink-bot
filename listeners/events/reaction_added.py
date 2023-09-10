@@ -4,7 +4,7 @@ import re
 
 from slack_sdk import WebClient
 
-from db import add_vote_to_poll
+from db import add_vote_to_poll_unique
 
 client = WebClient(token=os.environ.get("SLACK_BOT_TOKEN"))
 
@@ -53,7 +53,8 @@ def reaction_added_callback(body, event, say, logger: Logger):
                 say(f"*Bad reaction* :{reaction}:, please choose: :one:, :two:, or :three:")
                 return
             logger.info(f"User {user_id} reacted to this poll {poll_name} with {reaction}")
-            add_vote_to_poll(poll_name, option)
+            # add_vote_to_poll(poll_name, option)
+            add_vote_to_poll_unique(poll_name, user_id, option)
         else:
             logger.error("Message not found.")
     except Exception as e:
