@@ -82,6 +82,19 @@ def close_poll(poll_name: str):
     conn.close()
 
 
+def close_polls():
+    open_polls = get_polls_by_status("OPEN")
+
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+
+    c.execute("UPDATE polls SET status=:status", {"status": "CLOSED"})
+    conn.commit()
+    conn.close()
+    
+    return open_polls
+
+
 def open_poll(poll_name: str):
     open_polls = get_polls_by_status("OPEN")
     if len(open_polls) >=1:

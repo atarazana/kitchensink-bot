@@ -150,7 +150,7 @@ function ItemSelector() {
          position='middle-center'>
           {error != undefined && <Toast onClose={cleanError} show={error != undefined}>
             <Toast.Header closeButton={true}>
-              <strong className="me-auto">Error while trying to vote</strong>
+              <strong className="me-auto">Error found</strong>
             </Toast.Header>
             <Toast.Body>{error}</Toast.Body>
           </Toast> }

@@ -9,11 +9,10 @@ from logging import Logger
 from slack_sdk import WebClient
 from slack_sdk.models.blocks import SectionBlock
 
-from db import get_action_by_poll_name_and_option, get_poll, close_poll, open_poll, create_poll, get_votes
+from db import close_polls, get_action_by_poll_name_and_option, get_poll, close_poll, open_poll, create_poll, get_votes
 
 POLL_OPEN_EXAMPLE_CALL = "/poll open my_poll [Delete Limit,Delete Quota,Delete all]"
 POLL_CLOSE_EXAMPLE_CALL = "/poll close my_poll"
-POLL_REOPEN_EXAMPLE_CALL = "/poll reopen my_poll"
 POLL_GET_EXAMPLE_CALL = "/poll get my_poll"
 
 client = WebClient(token=os.environ.get("SLACK_BOT_TOKEN"))
@@ -24,7 +23,7 @@ def poll_command_callback(command, ack: Ack, respond: Respond, logger: Logger):
         ack()
         logger.debug(f" command => {command}")
 
-        verb_pattern = r"(open|close|reopen|get)\s+(.*)"
+        verb_pattern = r"(open|close|get)\s*(.*)"
         verb_match = re.search(verb_pattern, command["text"])
 
         if verb_match:
@@ -50,12 +49,11 @@ def poll_command_callback(command, ack: Ack, respond: Respond, logger: Logger):
                         respond(f"Poll {poll}")
                         post_poll_opening_message(poll, client, command["channel_name"], logger)
                 case "close":
-                    poll_name = extract_args_close(subject, logger)
-                    respond(f"Closing poll {poll_name}")
-                    poll = get_poll(poll_name)
-                    if poll is not None:
-                        close_poll(poll_name)
-
+                    respond(f"Closing poll(s)")
+                    polls_closed = close_polls()
+                    logger.info(f"polls_closed: {polls_closed}")
+                    if polls_closed is not None and len(polls_closed) == 1:
+                        poll_name = polls_closed[0]['poll_name']
                         # If there are no votes... option_1 is the one selected
                         winner_option = 'option_1'
                         votes = get_votes(poll_name)
@@ -67,7 +65,7 @@ def poll_command_callback(command, ack: Ack, respond: Respond, logger: Logger):
 
                         client.chat_postMessage(
                             channel=command["channel_name"],
-                            text=f"Poll *{poll_name}* closed, the winner is option *{winner_option}*",
+                            text=f"Poll *{poll_name}* closed, the winner is option *'{polls_closed[0][winner_option]}'*",
                         )
                         action = get_action_by_poll_name_and_option(poll_name, winner_option)
                         respond(f"Executing {action}")
@@ -85,7 +83,7 @@ def poll_command_callback(command, ack: Ack, respond: Respond, logger: Logger):
                         else:
                             logger.info("There should be a command to execute")
                     else:
-                        respond(f"No such a poll named {poll_name}")
+                        respond("There has to be one poll open and one only, try /poll open [poll_name]")
                 case "get":
                     poll_name = extract_args_get(subject, logger)
                     respond(f"Getting poll {poll_name}")
@@ -149,7 +147,7 @@ def extract_args_open(subject: str, logger: Logger):
         poll_name = match.group(1).lstrip().rstrip()
         logger.debug(f"poll_name => {poll_name}")
     else:
-        raise Exception(f"Arguments malformed for '/poll reopen' try this instead: {POLL_REOPEN_EXAMPLE_CALL}")
+        raise Exception(f"Arguments malformed for '/poll open' try this instead: {POLL_OPEN_EXAMPLE_CALL}")
 
     return poll_name
 
