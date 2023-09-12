@@ -83,6 +83,11 @@ def close_poll(poll_name: str):
 
 
 def open_poll(poll_name: str):
+    open_polls = get_polls_by_status("OPEN")
+    if len(open_polls) >=1:
+        poll_names = map(lambda poll: poll['poll_name'], open_polls)
+        return None,f"Close {list(poll_names)} before trying to open {poll_name}"
+
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = dict_factory
     c = conn.cursor()
@@ -104,7 +109,7 @@ def open_poll(poll_name: str):
 
     poll = get_poll(poll_name)
 
-    return poll
+    return poll,None
 
 
 def dict_factory(cursor, row):
@@ -112,6 +117,24 @@ def dict_factory(cursor, row):
     for idx, col in enumerate(cursor.description):
         d[col[0]] = row[idx]
     return d
+
+
+def count_open_polls():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = dict_factory
+    c = conn.cursor()
+    # This is open to SQL injection to some degree, should be
+    c.execute(
+        """SELECT count(*)
+           FROM polls WHERE status='OPEN'"""
+    )
+
+    count = c.fetchone()[0]
+    print(f"open polls = {count}")
+
+    conn.close()
+
+    return count
 
 
 def is_poll_open(poll_name: str):

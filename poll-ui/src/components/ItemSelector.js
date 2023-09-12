@@ -6,11 +6,16 @@ import Button from 'react-bootstrap/Button';
 import Alert from 'react-bootstrap/Alert';
 import Toast from 'react-bootstrap/Toast';
 import ToastContainer from 'react-bootstrap/ToastContainer';
+import Badge from 'react-bootstrap/Badge';
 
 import { v4 as uuidv4 } from 'uuid';
 
 function ItemSelector() {
+  const queryParams = new URLSearchParams(window.location.search);
+  const debug = queryParams.get('debug');
+
   const [error, setError] = useState(undefined);
+  const [success, setSuccess] = useState(undefined);
 
   const [poll, setPoll] = useState(undefined);
   const [previousPoll, setPreviousPoll] = useState(undefined);
@@ -96,6 +101,7 @@ function ItemSelector() {
           } else {
             setSelectedOption('');
             setPreviousPoll(poll);
+            setSuccess(true)
           }
         })
         .catch((error) => {
@@ -113,14 +119,18 @@ function ItemSelector() {
     setError(undefined);
   };
 
+  const cleanSuccess = () => {
+    setSuccess(undefined);
+  };
+
   return (
-    
     <Form>
       {poll ? <Alert key="a1" variant="primary" style={{ maxWidth: '800px', wordWrap: 'break-word' }}>{poll.title}</Alert> :  <Alert key="a1" variant="danger">No poll open, checking!</Alert>}
 
       
       {poll && <Form.Group className="mb-3" controlId='radios' key='radios'>
-      <h2>Select an Option:</h2>
+      <h2>Select an option:</h2>
+      {debug && <Badge bg="secondary">{uniqueId}</Badge>}
       {radioOptions.map((option) => (
         <Form.Check
         key={option.id}
@@ -136,32 +146,24 @@ function ItemSelector() {
 
       <Button disabled={!selectedOption} type="submit" onClick={handleSubmit}>Vote</Button>
 
-      {/* {fetchError != undefined && fetchError !== "" && <Alert key="a2" variant="danger">{fetchError}</Alert>}
-
-      {voteError != undefined && voteError !== "" && <Alert key="a3" variant="danger">{voteError}</Alert>} */}
-      
-      {error != undefined && <div
-        aria-live="polite"
-        aria-atomic="true"
-        className="position-relative"
-        style={{ minHeight: '240px' }}
-      >
-        <ToastContainer
-          className="p-3"
-          position="middle-center"
-          style={{ zIndex: 1 }}
-        >
-          <Toast onClose={cleanError}>
+      <ToastContainer
+         position='middle-center'>
+          {error != undefined && <Toast onClose={cleanError} show={error != undefined}>
             <Toast.Header closeButton={true}>
               <strong className="me-auto">Error while trying to vote</strong>
-              <small>Seconds ago</small>
             </Toast.Header>
             <Toast.Body>{error}</Toast.Body>
-          </Toast>
-        </ToastContainer>
-      </div>}
+          </Toast> }
 
+          {success != undefined &&  <Toast onClose={cleanSuccess} show={success != undefined} delay={3000} autohide>
+            <Toast.Header closeButton={true}>
+              <strong className="me-auto">Success while voting</strong>
+            </Toast.Header>
+            <Toast.Body>Your vote was correctly registered</Toast.Body>
+          </Toast>}
+        </ToastContainer>
     </Form>
+
     
   );
 }

@@ -43,17 +43,12 @@ def poll_command_callback(command, ack: Ack, respond: Respond, logger: Logger):
                 case "open":
                     (poll_name) = extract_args_open(subject, logger)
                     respond(f"Reading poll {poll_name}")
-                    poll = open_poll(poll_name)
-                    respond(f"Poll {poll}")
-                    # respond(f"Poll *{poll_name}* opened with title: {poll['title']}")
-                    # client.chat_postMessage(
-                    #     channel=command["channel_name"],
-                    #     text=f"Poll {poll['poll_name']} opened for voting:\n"
-                    #     f"- :one: {poll['option_1']}\n"
-                    #     f"- :two: {poll['option_2']}\n"
-                    #     f"- :three: {poll['option_3']}",
-                    # )
-                    post_poll_opening_message(poll, client, command["channel_name"], logger)
+                    (poll,error) = open_poll(poll_name)
+                    if error:
+                        respond(f"Poll {poll_name} can't be opened. {error}")
+                    else:
+                        respond(f"Poll {poll}")
+                        post_poll_opening_message(poll, client, command["channel_name"], logger)
                 case "close":
                     poll_name = extract_args_close(subject, logger)
                     respond(f"Closing poll {poll_name}")
@@ -61,12 +56,14 @@ def poll_command_callback(command, ack: Ack, respond: Respond, logger: Logger):
                     if poll is not None:
                         close_poll(poll_name)
 
+                        # If there are no votes... option_1 is the one selected
+                        winner_option = 'option_1'
                         votes = get_votes(poll_name)
-                        count_by_option = Counter(item["option"] for item in votes)
-                        max_option, max_count = count_by_option.most_common(1)[0]
-                        print(f"The most voted option is {max_option} with count={max_count}")
-
-                        winner_option = max_option
+                        if len(votes) > 0: 
+                            count_by_option = Counter(item["option"] for item in votes)
+                            max_option, max_count = count_by_option.most_common(1)[0]
+                            print(f"The most voted option is {max_option} with count={max_count}")
+                            winner_option = max_option                        
 
                         client.chat_postMessage(
                             channel=command["channel_name"],
