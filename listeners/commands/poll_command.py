@@ -9,7 +9,7 @@ from logging import Logger
 from slack_sdk import WebClient
 from slack_sdk.models.blocks import SectionBlock
 
-from db import close_polls, get_action_by_poll_name_and_option, get_poll, close_poll, open_poll, create_poll, get_votes
+from db import close_polls, get_action_by_poll_name_and_option, get_poll, open_poll, create_poll, get_votes
 
 POLL_OPEN_EXAMPLE_CALL = "/poll open my_poll [Delete Limit,Delete Quota,Delete all]"
 POLL_CLOSE_EXAMPLE_CALL = "/poll close my_poll"
@@ -42,26 +42,26 @@ def poll_command_callback(command, ack: Ack, respond: Respond, logger: Logger):
                 case "open":
                     (poll_name) = extract_args_open(subject, logger)
                     respond(f"Reading poll {poll_name}")
-                    (poll,error) = open_poll(poll_name)
+                    (poll, error) = open_poll(poll_name)
                     if error:
                         respond(f"Poll {poll_name} can't be opened. {error}")
                     else:
                         respond(f"Poll {poll}")
                         post_poll_opening_message(poll, client, command["channel_name"], logger)
                 case "close":
-                    respond(f"Closing poll(s)")
+                    respond("Closing poll(s)")
                     polls_closed = close_polls()
                     logger.info(f"polls_closed: {polls_closed}")
                     if polls_closed is not None and len(polls_closed) == 1:
-                        poll_name = polls_closed[0]['poll_name']
+                        poll_name = polls_closed[0]["poll_name"]
                         # If there are no votes... option_1 is the one selected
-                        winner_option = 'option_1'
+                        winner_option = "option_1"
                         votes = get_votes(poll_name)
-                        if len(votes) > 0: 
+                        if len(votes) > 0:
                             count_by_option = Counter(item["option"] for item in votes)
                             max_option, max_count = count_by_option.most_common(1)[0]
                             print(f"The most voted option is {max_option} with count={max_count}")
-                            winner_option = max_option                        
+                            winner_option = max_option
 
                         client.chat_postMessage(
                             channel=command["channel_name"],

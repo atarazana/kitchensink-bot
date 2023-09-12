@@ -91,15 +91,15 @@ def close_polls():
     c.execute("UPDATE polls SET status=:status", {"status": "CLOSED"})
     conn.commit()
     conn.close()
-    
+
     return open_polls
 
 
 def open_poll(poll_name: str):
     open_polls = get_polls_by_status("OPEN")
-    if len(open_polls) >=1:
-        poll_names = map(lambda poll: poll['poll_name'], open_polls)
-        return None,f"Close {list(poll_names)} before trying to open {poll_name}"
+    if len(open_polls) >= 1:
+        poll_names = map(lambda poll: poll["poll_name"], open_polls)
+        return None, f"Close {list(poll_names)} before trying to open {poll_name}"
 
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = dict_factory
@@ -122,7 +122,7 @@ def open_poll(poll_name: str):
 
     poll = get_poll(poll_name)
 
-    return poll,None
+    return poll, None
 
 
 def dict_factory(cursor, row):
@@ -286,7 +286,7 @@ def add_vote_to_poll_unique(poll_name: str, uuid: str, option: str):
     # This is open to SQL injection to some degree, should be
     c.execute(f"UPDATE polls SET {option}_count={option}_count+1 WHERE poll_name=:poll_name", {"poll_name": poll_name})
     c.execute(
-        f"INSERT OR REPLACE INTO votes (poll_name,uuid,option) VALUES (:poll_name,:uuid,:option)",
+        "INSERT OR REPLACE INTO votes (poll_name,uuid,option) VALUES (:poll_name,:uuid,:option)",
         {"poll_name": poll_name, "uuid": uuid, "option": option},
     )
     conn.commit()
