@@ -21,6 +21,7 @@ COPY --chown=1001 *.py /deployments/
 COPY --chown=1001 requirements.txt /deployments/
 COPY --chown=1001 data/ /deployments/data/
 COPY --chown=1001 listeners/ /deployments/listeners/
+COPY --chown=1001 rest/ /deployments/rest/
 
 RUN chmod a+x /deployments/data/*.sh
 
