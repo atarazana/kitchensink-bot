@@ -5,4 +5,5 @@
 !requirements.txt
 !data/
 !listeners/
+!rest/
 !tests/
