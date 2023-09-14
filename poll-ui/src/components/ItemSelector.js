@@ -18,7 +18,6 @@ function ItemSelector() {
   const [success, setSuccess] = useState(undefined);
 
   const [poll, setPoll] = useState(undefined);
-  const [previousPoll, setPreviousPoll] = useState(undefined);
   const [selectedOption, setSelectedOption] = useState('');
   const [uniqueId, setUniqueId] = useState('');
 
@@ -41,7 +40,7 @@ function ItemSelector() {
 
       if (result.length > 1) {
         console.log("There should be only one poll open at a time!");
-      } else if (result.length == 1) {
+      } else if (result.length === 1) {
         setPoll(result[0]);
         console.log("Poll open found: " + JSON.stringify(poll));
       } else {
@@ -100,7 +99,6 @@ function ItemSelector() {
             setError(data.error);
           } else {
             setSelectedOption('');
-            setPreviousPoll(poll);
             setSuccess(true)
           }
         })
@@ -148,14 +146,14 @@ function ItemSelector() {
 
       <ToastContainer
          position='middle-center'>
-          {error != undefined && <Toast onClose={cleanError} show={error != undefined}>
+          {error !== undefined && <Toast onClose={cleanError} show={error !== undefined}>
             <Toast.Header closeButton={true}>
               <strong className="me-auto">Error found</strong>
             </Toast.Header>
             <Toast.Body>{error}</Toast.Body>
           </Toast> }
 
-          {success != undefined &&  <Toast onClose={cleanSuccess} show={success != undefined} delay={3000} autohide>
+          {success !== undefined &&  <Toast onClose={cleanSuccess} show={success !== undefined} delay={3000} autohide>
             <Toast.Header closeButton={true}>
               <strong className="me-auto">Success while voting</strong>
             </Toast.Header>

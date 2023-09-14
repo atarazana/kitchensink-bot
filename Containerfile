@@ -16,17 +16,17 @@ RUN curl -s -o /tmp/helm.tar.gz -L https://get.helm.sh/helm-v${HELM_VERSION}-lin
 
 RUN dnf -y clean all --enablerepo='*'
 
-RUN chgrp -R 0 ${HOME} && chmod -R g=u ${HOME}
+RUN mkdir ${HOME}/.config && chgrp -R 0 ${HOME} && chmod -R g=u ${HOME}
 
 USER 1001
 
 # NodeJS
-# ENV NVM_DIR="${HOME}/.nvm"
-# ENV NODEJS_VERSION=16.14.0
-# RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-# RUN source ${HOME}/.bashrc && nvm install v${NODEJS_VERSION} && nvm alias default v$NODEJS_VERSION && nvm use v$NODEJS_VERSION && npm install --global yarn@v1.22.17
-# ENV PATH=$NVM_DIR/versions/node/v$NODEJS_VERSION/bin:$PATH
-# ENV NODEJS_HOME_16=$NVM_DIR/versions/node/v$NODEJS_VERSION
+ENV NVM_DIR="${HOME}/.nvm"
+ENV NODEJS_VERSION=16.14.0
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+RUN source ~/.nvm/nvm.sh && nvm install v${NODEJS_VERSION} && nvm alias default v$NODEJS_VERSION && nvm use v$NODEJS_VERSION && npm install --global yarn@v1.22.17
+ENV PATH=$NVM_DIR/versions/node/v$NODEJS_VERSION/bin:$PATH
+ENV NODEJS_HOME_16=$NVM_DIR/versions/node/v$NODEJS_VERSION
 
 # Create directory for application resources
 COPY --chown=1001 *.py /deployments/

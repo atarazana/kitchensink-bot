@@ -58,8 +58,6 @@ printf "=> Commit and push kitchensink-conf\n"
 git -C ${BASE_DIR}/kitchensink-conf commit -a -m "from poll_9.sh"
 git -C ${BASE_DIR}/kitchensink-conf push origin main
 
-printf "=> ArgoCD refresh app: %s\n" ""
-
 ARGOCD_APP_NAME=openshift-gitops/kitchensink-cicd-${DEV_USERNAME}
 # WAIT_FOR_HEALTH_FLAG="--health"
 
