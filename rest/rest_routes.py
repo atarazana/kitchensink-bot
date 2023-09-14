@@ -1,9 +1,13 @@
 from rest import rest
+from flask import send_from_directory
 
 from db import add_vote_to_poll_unique, is_poll_open, get_polls_by_status
 
 OPTIONS = ["option_1", "option_2", "option_3"]
 
+@rest.route('/')
+def index():
+    return rest.send_static_file('index.html')
 
 @rest.route("/hello", methods=["GET"])
 def hello():

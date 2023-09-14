@@ -6,4 +6,5 @@
 !data/
 !listeners/
 !rest/
+!poll-ui/
 !tests/
