@@ -16,16 +16,15 @@ RUN curl -s -o /tmp/helm.tar.gz -L https://get.helm.sh/helm-v${HELM_VERSION}-lin
 
 RUN dnf -y clean all --enablerepo='*'
 
-# RUN mkdir /home/user && chgrp -R 0 /home/user && \
-#     chmod -R g=u /home/user &&  usermod -d /home/user -u 1001
+RUN chgrp -R 0 ${HOME} && chmod -R g=u ${HOME}
 
 USER 1001
 
 # NodeJS
-# ENV NVM_DIR="/home/user/.nvm"
+# ENV NVM_DIR="${HOME}/.nvm"
 # ENV NODEJS_VERSION=16.14.0
 # RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
-# RUN source /home/user/.bashrc && nvm install v${NODEJS_VERSION} && nvm alias default v$NODEJS_VERSION && nvm use v$NODEJS_VERSION && npm install --global yarn@v1.22.17
+# RUN source ${HOME}/.bashrc && nvm install v${NODEJS_VERSION} && nvm alias default v$NODEJS_VERSION && nvm use v$NODEJS_VERSION && npm install --global yarn@v1.22.17
 # ENV PATH=$NVM_DIR/versions/node/v$NODEJS_VERSION/bin:$PATH
 # ENV NODEJS_HOME_16=$NVM_DIR/versions/node/v$NODEJS_VERSION
 
@@ -47,7 +46,7 @@ WORKDIR /deployments
 RUN pip install -r requirements.txt
 
 # Configure container port and UID
-EXPOSE 8080
+EXPOSE 5000
 USER 1001
 
 # Run application
