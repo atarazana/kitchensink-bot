@@ -19,3 +19,5 @@ oc delete secret kitchensink-bot-env -n ${DEPLOYMENT_NS}
 oc create secret generic kitchensink-bot-env --from-env-file=${ENV_FILE} -n ${DEPLOYMENT_NS}
 
 oc apply -n ${DEPLOYMENT_NS} -f deploy.yaml
+
+oc start-build bc/kitchensink-bot -n ${DEPLOYMENT_NS}

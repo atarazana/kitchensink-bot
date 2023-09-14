@@ -114,9 +114,9 @@ metadata:
 spec:
   ports:
   - name: http
-    port: 8080
+    port: 5000
     protocol: TCP
-    targetPort: 8080
+    targetPort: 5000
   selector:
     app: kitchensink-bot
 ---
@@ -194,12 +194,16 @@ metadata:
   name: kitchensink-bot
   namespace: kitchensink-bot
 spec:
-  port:
-    targetPort: http
   to:
     kind: Service
     name: kitchensink-bot
     weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
 ---
 kind: ImageStream
 apiVersion: image.openshift.io/v1
