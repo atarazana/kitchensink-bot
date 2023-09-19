@@ -33,7 +33,7 @@ function App() {
         <Col md={12}>
           <Card >
             <Card.Body>
-              <Card.Title><h1>Kitchensink Vote Manager</h1></Card.Title>
+              <Card.Title><h1>JBoss Cowboys Vote Manager</h1></Card.Title>
 
               <ItemSelector />    
 
