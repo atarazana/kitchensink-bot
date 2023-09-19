@@ -65,7 +65,7 @@ def poll_command_callback(command, ack: Ack, respond: Respond, logger: Logger):
                                 percentage_dict[option] = percentage
                             max_option, max_count = count_by_option.most_common(1)[0]
                             print(
-                                f"The most voted option is {max_option} with count={max_count} vote percentages: {percentage_dict}"
+                                f"The most voted option is {max_option} vote percentages: {percentage_dict}"
                             )
                             winner_option = max_option
 
