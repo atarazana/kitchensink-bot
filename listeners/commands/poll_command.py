@@ -59,14 +59,23 @@ def poll_command_callback(command, ack: Ack, respond: Respond, logger: Logger):
                         votes = get_votes(poll_name)
                         if len(votes) > 0:
                             count_by_option = Counter(item["option"] for item in votes)
+                            percentage_dict = {}  # Dictionary to store percentages
+                            for option, count in count_by_option.items():
+                                percentage = (count / len(votes)) * 100
+                                percentage_dict[option] = percentage
                             max_option, max_count = count_by_option.most_common(1)[0]
-                            print(f"The most voted option is {max_option} with count={max_count}")
+                            print(
+                                f"The most voted option is {max_option} with count={max_count} vote percentages: {percentage_dict}"
+                            )
                             winner_option = max_option
 
-                        client.chat_postMessage(
-                            channel=command["channel_name"],
-                            text=f"Poll *{poll_name}* closed, the winner is option *'{polls_closed[0][winner_option]}'*",
+                        post_poll_result_message(
+                            polls_closed[0], percentage_dict, winner_option, client, command["channel_name"], logger
                         )
+                        # client.chat_postMessage(
+                        #     channel=command["channel_name"],
+                        #     text=f"Poll *{poll_name}* closed, the winner is option *'{polls_closed[0][winner_option]}'*",
+                        # )
                         action = get_action_by_poll_name_and_option(poll_name, winner_option)
                         respond(f"Executing {action}")
                         # (action_is_slack, message) = is_action_slack(action['command'], logger)
@@ -179,6 +188,42 @@ def is_action_slack(action: str, logger: Logger):
         return (True, message)
 
     return (False, None)
+
+
+def post_poll_result_message(poll, percentages: dict, winner_option: str, client: WebClient, channel: str, logger: Logger):
+    logger.debug(f"post_poll_result_message(poll={poll}, percentages={percentages})")
+
+    percentages_text = "Percentages:\n"
+    for i in range(1, 3 + 1):
+        option = poll[f"option_{i}"]
+        percentage = percentages.get(f"option_{i}", 0)
+        votes = poll[f"option_{i}_count"]
+        percentages_text += f"• {option}: *{percentage} %* with {votes} votes\n"
+
+        message = {
+            "channel": channel,
+            "text": f"Poll *{poll['poll_name']}* closed, the winner is option *'{poll[winner_option]}'*",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": f"Poll *{poll['poll_name']}* was closed and the winner was *'{poll[winner_option]}'*",
+                    },
+                },
+                {"type": "divider"},
+                {"type": "header", "text": {"type": "plain_text", "text": f"{poll['title']}  :bar_chart:"}},
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": percentages_text,
+                    },
+                },
+            ],
+        }
+
+    client.chat_postMessage(**message)
 
 
 def post_poll_opening_message(poll, client: WebClient, channel: str, logger: Logger):
