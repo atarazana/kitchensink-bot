@@ -48,13 +48,15 @@ oc new-app --template=eap72-basic-s2i \
 -p MAVEN_ARGS_APPEND="-Dcom.redhat.xpaas.repo.jbossorg" \
 -p SOURCE_REPOSITORY_URL="${GIT_SERVER}/${DEV_USERNAME}/kitchensink" \
 -p SOURCE_REPOSITORY_REF=main \
--p CONTEXT_DIR=.
+-p CONTEXT_DIR=. && \
+oc rollout pause dc/kitchensink
 
 printf "=================\nEXECUTING STEP %s\n=================\n" "04"
 
 oc set env dc/kitchensink DB_HOST=kitchensink-db DB_PORT=5432 DB_NAME=kitchensink DB_USERNAME=luke DB_PASSWORD=secret && \
-oc set probe dc/kitchensink --readiness --initial-delay-seconds=90 --failure-threshold=5 && \
-oc set probe dc/kitchensink --liveness --initial-delay-seconds=90 --failure-threshold=5
+oc set probe dc/kitchensink --readiness --initial-delay-seconds=40 --failure-threshold=15 --period-seconds=5 && \
+oc set probe dc/kitchensink --liveness  --initial-delay-seconds=40 --failure-threshold=15 --period-seconds=5 && \
+oc rollout resume dc/kitchensink
 
 oc label dc/kitchensink app.kubernetes.io/part-of=kitchensink-app --overwrite=true && \
 oc label dc/kitchensink app.openshift.io/runtime=jboss --overwrite=true
