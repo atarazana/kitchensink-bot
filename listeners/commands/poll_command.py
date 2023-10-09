@@ -64,9 +64,7 @@ def poll_command_callback(command, ack: Ack, respond: Respond, logger: Logger):
                                 percentage = (count / len(votes)) * 100
                                 percentage_dict[option] = percentage
                             max_option, max_count = count_by_option.most_common(1)[0]
-                            print(
-                                f"The most voted option is {max_option} vote percentages: {percentage_dict}"
-                            )
+                            print(f"The most voted option is {max_option} vote percentages: {percentage_dict}")
                             winner_option = max_option
 
                         post_poll_result_message(
