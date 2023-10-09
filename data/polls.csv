@@ -1,6 +1,7 @@
 poll_name,title,comments,status,option_1,option_1_count,option_2,option_2_count,option_3,option_3_count
 test_1,Elige tu helado preferido de los 80,,CLOSED,Frigo Dedo,0,Drácula,0,Colajet,0
 test_2,¿Cuál es tu peli favorita?,,CLOSED,Alien el octavo pasajero,0,Interestelar,0,Regreso al futuro,0
+test_3,Dónde está situado el telescopio James Webb,,CLOSED,Lejos,0,NPI,0,El el punto de Lagrange L2,0
 poll_1,¿Cómo desplegamos manualmente kitchensink de forma repetible y auditable en OpenShift?,Esto no es automático y además que pasa con las actualizaciones… entornos… etc.,CLOSED,Ejecuta un script que invoque una plantilla,0,Utiliza S2I,0,Pulsa el botón desplegar!,0
 poll_2,¿Qué hacemos para desplegar de forma automática kitchensink partiendo de los descriptores generados con S2I?,Ahora hay que resolver el despliegue en varios entornos.,CLOSED,Ansible lee los descriptores de git y los aplica,0,Utilizando Argo CD,0,Con un poco de azúcar y esa píldora que os dan,0
 poll_3,Hay que desplegar en varios entornos. ¿Qué hacemos?,Esto tiene la pega de para ajustar la imagen utilizada hay que n-plicar los directorios de conf.,CLOSED,Creamos objetos Application para cada namespace,0,Utilizamos Ansible para crear tantos objetos Application como sea necesario,0,Utilizamos un objeto ApplicationSet,0
@@ -8,5 +9,4 @@ poll_4,¿Cómo partimos de un único conjunto de descriptores y los adaptamos a 
 poll_5,¿Cómo podemos ajustar los descriptores con valores y lógica compleja?,Esto tiene la pega de que no es fácil despegar en diferentes overlays/entornos.,CLOSED,Con kustomize pero más veces,0,Con Ansible y placeholders antes de ejecutar kustomize,0,Empleando helm,0
 poll_6a,¿Qué estrategia elegimos para desplegar las pipelines?,,CLOSED,Las desplegamos con ArgoCD también; por supuesto,0,Las (re)desplegamos con CronJob,0,Las dejamos fuera para no liar,0
 poll_6b,¿Cómo podemos unir la flexibilidad de helm con kustomize?,,CLOSED,Lo dejamos aquí; no se puede,0,Con un plugin custom que ejecuta kustomize después de ejecutar helm,0,Con Go y un poco de Ansible,0
-poll_7,Dónde está situado el telescopio James Webb,,CLOSED,Lejos,0,NPI,0,El el punto de Lagrange L2,0
-poll_8,Para actualizar de 7.2 a 7.4 hay que cambiar...,,CLOSED,...el condensador de flujo,0,La imagen builder a 7.4 y el script install.sh,0,La imagen builder de 7.2 a 7.4,0
+poll_7,Para actualizar de 7.2 a 7.4 hay que cambiar...,,CLOSED,...el condensador de flujo,0,La imagen builder a 7.4 y el script install.sh,0,La imagen builder de 7.2 a 7.4,0
