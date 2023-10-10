@@ -30,5 +30,5 @@ poll_6b,option_1,,"Va a ser que *NO*!","https://media.giphy.com/media/JtLrtaN4VP
 poll_6b,option_2,sh ${DATA_DIR}/poll_6b_command.sh,"Correcto!!","https://media.giphy.com/media/UAXK9VGoJTbdcPgmcJ/giphy.gif"
 poll_6b,option_3,,"Va a ser que *NO*!","https://media.giphy.com/media/JtLrtaN4VPoKXJRKGB/giphy.gif"
 poll_7,option_1,,"Va a ser que *NO*!","https://media.giphy.com/media/JtLrtaN4VPoKXJRKGB/giphy.gif"
-poll_7,option_2,sh ${DATA_DIR}/poll_8_command.sh,"Correcto!!","https://media.giphy.com/media/UAXK9VGoJTbdcPgmcJ/giphy.gif"
+poll_7,option_2,sh ${DATA_DIR}/poll_7_command.sh,"Correcto!!","https://media.giphy.com/media/UAXK9VGoJTbdcPgmcJ/giphy.gif"
 poll_7,option_3,,"Va a ser que *NO*!","https://media.giphy.com/media/JtLrtaN4VPoKXJRKGB/giphy.gif"
