@@ -12,7 +12,8 @@ from slack_sdk.models.blocks import SectionBlock
 from db import close_polls, get_action_by_poll_name_and_option, get_poll, open_poll, create_poll, get_votes
 
 POLL_OPEN_EXAMPLE_CALL = "/poll open my_poll [Delete Limit,Delete Quota,Delete all]"
-POLL_CLOSE_EXAMPLE_CALL = "/poll close my_poll"
+POLL_CLOSE_EXAMPLE_CALL = "/poll close"
+POLL_SHUT_EXAMPLE_CALL = "/poll shut 1"
 POLL_GET_EXAMPLE_CALL = "/poll get my_poll"
 
 client = WebClient(token=os.environ.get("SLACK_BOT_TOKEN"))
@@ -23,7 +24,7 @@ def poll_command_callback(command, ack: Ack, respond: Respond, logger: Logger):
         ack()
         logger.debug(f" command => {command}")
 
-        verb_pattern = r"(open|close|get)\s*(.*)"
+        verb_pattern = r"(open|close|shut|get)\s*(.*)"
         verb_match = re.search(verb_pattern, command["text"])
 
         if verb_match:
@@ -91,6 +92,30 @@ def poll_command_callback(command, ack: Ack, respond: Respond, logger: Logger):
                             logger.info("There should be a command to execute")
                     else:
                         respond("There has to be one poll open and one only, try /poll open [poll_name]")
+                case "shut":
+                    respond("Shutting poll(s) with option")
+                    (option) = extract_args_shut(subject, logger)
+                    polls_closed = close_polls()
+                    logger.info(f"polls_closed: {polls_closed}")
+                    if polls_closed is not None and len(polls_closed) == 1:
+                        poll_name = polls_closed[0]["poll_name"]
+                        winner_option = f"option_{option}"
+                        action = get_action_by_poll_name_and_option(poll_name, winner_option)
+                        respond(f"Executing {action}")
+                        if action["txt"] or action["image_url"]:
+                            post_action_message(action, client, command["channel_name"], logger)
+
+                        if action["command"]:
+                            client.chat_postMessage(
+                                channel=command["channel_name"],
+                                text=f"About to run: {action['command']}",
+                            )
+                            (returncode, stdout, stderr) = execute_shell_command(action["command"])
+                            respond(blocks=blocks_for_cmd_result(returncode, stdout, stderr))
+                        else:
+                            logger.info("There should be a command to execute")
+                    else:
+                        respond("There has to be one poll open and one only, try /poll open [poll_name]")
                 case "get":
                     poll_name = extract_args_get(subject, logger)
                     respond(f"Getting poll {poll_name}")
@@ -107,7 +132,7 @@ def poll_command_callback(command, ack: Ack, respond: Respond, logger: Logger):
                 case _:
                     client.chat_postMessage(
                         channel=command["channel_name"],
-                        text="Poll command not found!",
+                        text="Poll command not found!!",
                     )
         else:
             logger.error("Poll command not found!")
@@ -133,17 +158,17 @@ def extract_args_create(subject: str, logger: Logger):
     return (poll_name, option_1, option_2, option_3)
 
 
-def extract_args_close(subject: str, logger: Logger):
-    pattern = r"(\w+)"
+def extract_args_shut(subject: str, logger: Logger):
+    pattern = r"([0-9]+)"
     match = re.search(pattern, subject)
 
     if match:
-        poll_name = match.group(1).lstrip().rstrip()
-        logger.debug(f"poll_name => {poll_name}")
+        option = match.group(1).lstrip().rstrip()
+        logger.debug(f"option => {option}")
     else:
-        raise Exception(f"Arguments malformed for '/poll close' try this instead: {POLL_CLOSE_EXAMPLE_CALL}")
+        raise Exception(f"Arguments malformed for '/poll shut' try this instead: {POLL_SHUT_EXAMPLE_CALL}")
 
-    return poll_name
+    return option
 
 
 def extract_args_open(subject: str, logger: Logger):
