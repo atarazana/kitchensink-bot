@@ -50,5 +50,7 @@ spec:
               value: 'false'
             - name: BASE_NAMESPACE
               value: 'cicd-tekton-${DEV_USERNAME}'
-          name: kustomized-helm
+          # This overrides the discover spec in ConfigManagementPlugin
+          # https://github.com/atarazana/kitchensink/blob/main/util/bootstrap/3.adapt-operators/gitops-patch.yaml#L80
+          name: kustomized-helm-v1.0
 EOF
